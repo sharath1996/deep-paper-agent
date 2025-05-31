@@ -7,7 +7,7 @@ def test_lang_search():
 
     # Define the search input parameters
     search_input = WebSearchInput(
-        str_query="SWE.6 - Software testing guidelines",
+        str_query="Latest trends in edge computing for AI",
         str_searchEngine="Langsearch",
         int_numberOfResults=10
     )

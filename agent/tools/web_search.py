@@ -80,7 +80,7 @@ class LangSearch(WebSearch):
         local_str_endPointUrl = "https://api.langsearch.com/v1/web-search"
         local_dict_payLoad = {
             "query": param_str_query,
-            "freshness" : "noLimit",
+            "freshness" : "oneMonth",
             "summary" : True,
             "count" : param_int_numberOfResults
         }
