@@ -3,3 +3,4 @@ openai
 pytest
 requests
 tavily-python
+arxiv

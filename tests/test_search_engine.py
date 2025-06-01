@@ -1,4 +1,5 @@
 from agent.tools.web_search import LangSearch, WebSearchInput, TavilySearch
+from agent.tools.paper_search import ArxivPaperSearch, PaperSearchInput
 import json
 
 def test_lang_search():
@@ -33,4 +34,23 @@ def test_tavily_search():
     local_obj_searchResult = local_obj_searchEngine.search(local_obj_input)
 
     with open(".results/test_tavily_search_results.json", "w") as f:
+        json.dump(local_obj_searchResult.model_dump(), f, indent=4)
+
+
+def test_arxiv_search():
+
+    # Create an instance of the ArxivPaperSearch class
+    local_obj_searchEngine = ArxivPaperSearch()
+
+    # Define the search input parameters
+    local_obj_input = PaperSearchInput(
+        str_query="edge computing optimizations for edgeAI",
+        str_searchEngine="Arxiv",
+        int_numberOfResults=10,
+        str_paperSource="Arxiv"
+    )
+    # Perform the search
+    local_obj_searchResult = local_obj_searchEngine.search(local_obj_input)
+
+    with open(".results/test_arxiv_search_results.json", "w") as f:
         json.dump(local_obj_searchResult.model_dump(), f, indent=4)
