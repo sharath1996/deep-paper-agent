@@ -2,3 +2,4 @@ playwright
 openai
 pytest
 requests
+tavily-python

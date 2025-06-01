@@ -3,6 +3,7 @@ import json
 from pydantic import BaseModel, Field
 import os
 import requests
+from tavily import TavilyClient
 
 class WebPageContent(BaseModel):
     """
@@ -115,3 +116,45 @@ class LangSearch(WebSearch):
 
                 
 
+class TavilySearch(WebSearch):
+    """
+    A class that implements web search functionality using the Tavily framework.
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    def search(self, param_obj_webSearchInput: WebSearchInput) -> WebSearchResult:
+        """
+        Executes a web search using the Tavily framework.
+
+        :param param_obj_webSearchInput: The input parameters for the web search.
+        :return: A WebSearchResult object containing the search results.
+        """
+        # Placeholder for actual implementation
+        local_obj_tavilyClient = TavilyClient(api_key=os.environ.get('TAVILY_API_KEY'))
+        local_dict_response = local_obj_tavilyClient.search(
+            search_depth="advanced",
+            query=param_obj_webSearchInput.str_query,
+            count=param_obj_webSearchInput.int_numberOfResults,
+            time_range="week",
+            include_raw_content=True)
+
+        with open('tavily_response.json', 'w') as local_file:
+            json.dump(local_dict_response, local_file, indent=4)
+        # return an empty result for now
+        local_list_webPagesObjects = []
+        
+        for local_dict_result in local_dict_response['results']:
+            local_obj_webPageContent = WebPageContent(
+                str_webPageTitle=local_dict_result["title"],
+                str_webPageContent=local_dict_result["raw_content"],
+                str_webPageUrl=local_dict_result["url"]
+            )
+            local_list_webPagesObjects.append(local_obj_webPageContent)
+
+        return WebSearchResult(
+            str_query=param_obj_webSearchInput.str_query,
+            list_webPageContent=local_list_webPagesObjects,
+            int_totalResults=len(local_list_webPagesObjects)
+        )
