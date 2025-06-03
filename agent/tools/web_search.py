@@ -146,9 +146,12 @@ class TavilySearch(WebSearch):
         local_list_webPagesObjects = []
         
         for local_dict_result in local_dict_response['results']:
+            local_str_content = local_dict_result.get("raw_content", "")
+            if local_str_content == "":
+                local_str_content = local_dict_result.get("content", "")
             local_obj_webPageContent = WebPageContent(
                 str_webPageTitle=local_dict_result["title"],
-                str_webPageContent=local_dict_result["raw_content"],
+                str_webPageContent=local_str_content,
                 str_webPageUrl=local_dict_result["url"]
             )
             local_list_webPagesObjects.append(local_obj_webPageContent)
