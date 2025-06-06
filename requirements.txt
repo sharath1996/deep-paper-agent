@@ -4,3 +4,4 @@ pytest
 requests
 tavily-python
 arxiv
+duckduckgo_search

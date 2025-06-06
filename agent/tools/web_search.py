@@ -4,6 +4,8 @@ from pydantic import BaseModel, Field
 import os
 import requests
 from tavily import TavilyClient
+from duckduckgo_search import DDGS
+import logging
 
 class WebPageContent(BaseModel):
     """
@@ -162,6 +164,43 @@ class TavilySearch(WebSearch):
             )
             local_list_webPagesObjects.append(local_obj_webPageContent)
 
+        return WebSearchResult(
+            str_query=param_obj_webSearchInput.str_query,
+            list_webPageContent=local_list_webPagesObjects,
+            int_totalResults=len(local_list_webPagesObjects)
+        )
+
+class DuckDuckGoSearch(WebSearch):
+    """
+    A class that implements web search functionality using the DuckDuckGo search engine.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self._ddgs = DDGS()
+        
+    
+    def search(self, param_obj_webSearchInput: WebSearchInput) -> WebSearchResult:
+        """
+        Executes a web search using the DuckDuckGo search engine.
+
+        :param param_obj_webSearchInput: The input parameters for the web search.
+        :return: A WebSearchResult object containing the search results.
+        """
+        # Placeholder for actual implementation
+        
+        local_list_webPagesObjects = []
+        local_list_results =  self._ddgs.text(param_obj_webSearchInput.str_query, max_results = 5)
+
+        for local_dict_result in local_list_results:
+            
+            local_obj_webPageContent = WebPageContent(
+                str_webPageTitle=local_dict_result['title'],
+                str_webPageContent=local_dict_result['body'],
+                str_webPageUrl=local_dict_result['href']
+            )
+            local_list_webPagesObjects.append(local_obj_webPageContent)
+        
         return WebSearchResult(
             str_query=param_obj_webSearchInput.str_query,
             list_webPageContent=local_list_webPagesObjects,

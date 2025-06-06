@@ -1,4 +1,4 @@
-from agent.tools.web_search import LangSearch, WebSearchInput, TavilySearch
+from agent.tools.web_search import LangSearch, WebSearchInput, TavilySearch, DuckDuckGoSearch
 from agent.tools.paper_search import ArxivPaperSearch, PaperSearchInput
 import json
 
@@ -54,3 +54,20 @@ def test_arxiv_search():
 
     with open(".results/test_arxiv_search_results.json", "w") as f:
         json.dump(local_obj_searchResult.model_dump(), f, indent=4)
+
+def test_duckduckgo_search():
+    # Create an instance of the DuckDuckGoSearch class
+    local_obj_searchEngine = DuckDuckGoSearch()
+
+    # Define the search input parameters
+    local_obj_input = WebSearchInput(
+        str_query="Latest trends in edge computing for AI",
+        str_searchEngine="DuckDuckGo",
+        int_numberOfResults=10
+    )
+
+    # Perform the search
+    local_obj_searchResult = local_obj_searchEngine.search(local_obj_input)
+
+    # with open(".results/test_duckduckgo_search_results.json", "w") as f:
+    #     json.dump(local_obj_searchResult.model_dump(), f, indent=4)
