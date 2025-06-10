@@ -1,6 +1,7 @@
 import arxiv
 from pydantic import BaseModel, Field
-
+import requests
+import json
 
 
 class PaperSearchInput(BaseModel):
@@ -102,6 +103,53 @@ class ArxivPaperSearch(PaperSearch):
         
         return PaperSearchResult(
             str_query=param_obj_searchInput.str_query,
+            list_paperResults=list_paper_results,
+            int_totalResults=len(list_paper_results)
+        )
+    
+class CrossRefPaperSearch(PaperSearch):
+    """
+    
+    """
+    def __init__(self):
+        super().__init__()
+        # Placeholder for CrossRef client initialization
+
+    def search(self, param_obj_input:PaperSearchInput) -> PaperSearchResult:
+
+        """
+        Executes a paper search on CrossRef based on the provided query.
+
+        :param query: The search query to be executed.
+        :param num_results: The number of results to return from the search.
+        :return: A list of dictionaries containing the search results.
+        """
+        # Placeholder for actual implementation
+        
+        local_str_crossRefSearchUrl = f"https://api.crossref.org/works?query={param_obj_input.str_query}&rows={param_obj_input.int_numberOfResults}"
+
+        local_obj_response = requests.get(local_str_crossRefSearchUrl)
+        if local_obj_response.status_code != 200:
+            raise Exception(f"Failed to fetch data from CrossRef: {local_obj_response.status_code}")
+
+
+        local_obj_data = local_obj_response.json()
+
+        list_paper_results = []
+        for local_dict_item in local_obj_data.get('message', {}).get('items', []):
+            list_paper_results.append(
+                PaperResult(
+                    str_title=local_dict_item.get('title', [''])[0],
+                    str_url=local_dict_item.get('URL', ''),
+                    str_abstract=local_dict_item.get('abstract', ''),
+                    str_fullText=local_dict_item.get('full_text_url', ''),  # Placeholder for full text
+                    list_authors=[author['given'] + ' ' + author['family'] for author in local_dict_item.get('author', [])],
+                    str_publishedDate=str(local_dict_item.get('published-print', {}).get('date-parts', [[None]])[0][0]) or ''
+                )
+            )
+        
+        return PaperSearchResult(
+            str_query=param_obj_input.str_query,
             list_paperResults=list_paper_results,
             int_totalResults=len(list_paper_results)
         )

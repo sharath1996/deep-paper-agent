@@ -4,6 +4,8 @@ from pydantic import BaseModel, Field
 import os
 import requests
 from tavily import TavilyClient
+from duckduckgo_search import DDGS
+import logging
 
 class WebPageContent(BaseModel):
     """
@@ -53,8 +55,12 @@ class LangSearch(WebSearch):
     A class that implements web search functionality using the LangChain framework.
     """
 
-    def __init__(self):
+    def __init__(self, param_str_apiKey: str = None):
         super().__init__()
+        self._str_APIKey = param_str_apiKey if param_str_apiKey else os.environ.get('LANGSEARCH_API_KEY')
+        
+        if not self._str_APIKey:
+            raise ValueError("API key for LangSearch is not provided or set in environment variables.")
 
     def search(self, param_obj_webSearchInput: WebSearchInput) -> WebSearchResult:
         """
@@ -87,7 +93,7 @@ class LangSearch(WebSearch):
         }
 
         local_dict_headers = {
-            "Authorization": f"Bearer {os.getenv('LANGSEARCH_API_KEY')}",
+            "Authorization": f"Bearer {self._str_APIKey}",
             "Content-Type": "application/json"
         }
 
@@ -121,9 +127,12 @@ class TavilySearch(WebSearch):
     A class that implements web search functionality using the Tavily framework.
     """
 
-    def __init__(self):
+    def __init__(self, param_str_apiKey: str = None):
         super().__init__()
-
+        self._str_APIKey = param_str_apiKey if param_str_apiKey else os.environ.get('TAVILY_API_KEY', None)
+        if not self._str_APIKey:
+            raise ValueError("API key for Tavily is not provided or set in environment variables.")
+        
     def search(self, param_obj_webSearchInput: WebSearchInput) -> WebSearchResult:
         """
         Executes a web search using the Tavily framework.
@@ -132,27 +141,66 @@ class TavilySearch(WebSearch):
         :return: A WebSearchResult object containing the search results.
         """
         # Placeholder for actual implementation
-        local_obj_tavilyClient = TavilyClient(api_key=os.environ.get('TAVILY_API_KEY'))
+        local_obj_tavilyClient = TavilyClient(api_key=self._str_APIKey)
         local_dict_response = local_obj_tavilyClient.search(
-            search_depth="advanced",
             query=param_obj_webSearchInput.str_query,
             count=param_obj_webSearchInput.int_numberOfResults,
             time_range="week",
             include_raw_content=True)
 
-        with open('tavily_response.json', 'w') as local_file:
-            json.dump(local_dict_response, local_file, indent=4)
         # return an empty result for now
         local_list_webPagesObjects = []
         
         for local_dict_result in local_dict_response['results']:
+            local_str_content = local_dict_result.get("raw_content", None)
+            if local_str_content is None:
+                local_str_content = local_dict_result.get("content", "")
+                if local_str_content is None:
+                    local_str_content = ""
             local_obj_webPageContent = WebPageContent(
                 str_webPageTitle=local_dict_result["title"],
-                str_webPageContent=local_dict_result["raw_content"],
+                str_webPageContent=local_str_content,
                 str_webPageUrl=local_dict_result["url"]
             )
             local_list_webPagesObjects.append(local_obj_webPageContent)
 
+        return WebSearchResult(
+            str_query=param_obj_webSearchInput.str_query,
+            list_webPageContent=local_list_webPagesObjects,
+            int_totalResults=len(local_list_webPagesObjects)
+        )
+
+class DuckDuckGoSearch(WebSearch):
+    """
+    A class that implements web search functionality using the DuckDuckGo search engine.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self._ddgs = DDGS()
+        
+    
+    def search(self, param_obj_webSearchInput: WebSearchInput) -> WebSearchResult:
+        """
+        Executes a web search using the DuckDuckGo search engine.
+
+        :param param_obj_webSearchInput: The input parameters for the web search.
+        :return: A WebSearchResult object containing the search results.
+        """
+        # Placeholder for actual implementation
+        
+        local_list_webPagesObjects = []
+        local_list_results =  self._ddgs.text(param_obj_webSearchInput.str_query, max_results = 5)
+
+        for local_dict_result in local_list_results:
+            
+            local_obj_webPageContent = WebPageContent(
+                str_webPageTitle=local_dict_result['title'],
+                str_webPageContent=local_dict_result['body'],
+                str_webPageUrl=local_dict_result['href']
+            )
+            local_list_webPagesObjects.append(local_obj_webPageContent)
+        
         return WebSearchResult(
             str_query=param_obj_webSearchInput.str_query,
             list_webPageContent=local_list_webPagesObjects,
