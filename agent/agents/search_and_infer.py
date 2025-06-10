@@ -91,9 +91,9 @@ class SearchAndInferAgent:
         """
         self._obj_llm.clear_messages()
         local_str_sytemPrompt = dedent("""
-            You are a helpful assistant that can infer answers from web search results.
-            You will be given a task and the search results, you need to return the inferred answer.
-            The answer should be concise and relevant to the query.
+            You are a helpful assistant that can perform the task given to you from web search results.
+            You will be given a task and the search results, you need to return the completed task.
+            The response should be concise and relevant to the query.
             You should only use the information from the search results to infer the answer and not any internal knowledge that you may have.
             You should only return the answer, nothing else.""")
         self._obj_llm.add_system_prompt(local_str_sytemPrompt)
