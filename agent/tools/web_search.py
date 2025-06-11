@@ -5,7 +5,6 @@ import os
 import requests
 from tavily import TavilyClient
 from duckduckgo_search import DDGS
-import logging
 
 class WebPageContent(BaseModel):
     """

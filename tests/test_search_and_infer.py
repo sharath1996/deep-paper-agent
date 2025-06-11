@@ -10,7 +10,7 @@ def test_search_and_infer():
     local_obj_searchAndInfer = SearchAndInferAgent()
 
     # Define the input parameters for the search
-    local_obj_search_input = SearchAndInferInput(str_task="Create a getting started guide for IPCM drivers in arm used for embedded systems for STM32 devices")
+    local_obj_search_input = SearchAndInferInput(str_task="What are the various methods to evaluate a MCU for the given project?",)
 
     # Perform the search and inference
     local_obj_inferenceOutput = local_obj_searchAndInfer.run(local_obj_search_input)
